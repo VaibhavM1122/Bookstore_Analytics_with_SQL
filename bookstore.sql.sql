@@ -1,4 +1,5 @@
 -- Step 1: Create the Database Schema
+-- We begin by creating the tables using SQL CREATE TABLE statements. These include foreign key relationships for orders and marketing spend.
 
 -- 1. Books table
 CREATE TABLE Books (
@@ -37,7 +38,7 @@ CREATE TABLE MarketingSpend (
 );
 
 -- Step 2: Insert Sample Data
-
+-- In this step we will insert sample data into all four tables: Books, Customers, Orders and MarketingSpend
 -- Books
 INSERT INTO Books VALUES
 (1, 'Data Science 101', 'Education', 29.99, 100),
@@ -134,6 +135,7 @@ INSERT INTO MarketingSpend VALUES
 (20, 20, 58.00);
 
 -- Step 3: Analyze Book Performance
+-- Here we will use SQL Joins and aggregations to calculate total units sold and total revenue per book
 
 SELECT 
     b.title,
@@ -145,6 +147,7 @@ GROUP BY b.title
 ORDER BY total_revenue DESC;
 
 -- Step 4: Inventory Alerts
+-- In this step we will trigger alerts for books running low on stock. We need to maintain healthy stock levels to prevent lost sales
 
 SELECT 
     title, stock
@@ -152,6 +155,10 @@ FROM Books
 WHERE stock < 15;
 
 -- Step 5: Segment Customers Using RFM Analysis 
+-- Use a Common Table Expression (CTE) to understand top customers and create segments.
+-- Recency: Time since last purchase
+-- Frequency: Number of orders
+-- Monetary: Total spent
 
 WITH customer_metrics AS (
     SELECT
@@ -170,6 +177,8 @@ SELECT *,
 FROM customer_metrics;
 
 -- Step 6: Evaluate Marketing ROI
+--Compare customer lifetime revenue vs acquisition cost using joins and subqueries.
+-- We can say how much return you are getting per customer on marketing spend.
 
 WITH customer_spend AS (
     SELECT 
@@ -190,6 +199,8 @@ JOIN MarketingSpend ms ON c.customer_id = ms.customer_id
 JOIN customer_spend cs ON c.customer_id = cs.customer_id;
 
 -- Step 7: Monthly Sales Trend
+-- This step tracks how many books were sold and the total revenue generated each month.
+-- It helps identify sales seasonality and evaluate the performance of promotional campaigns.
 
 SELECT 
     DATE_FORMAT(order_date, '%Y-%m') AS month,
@@ -200,6 +211,8 @@ GROUP BY month
 ORDER BY month;
 
 -- Step 8: Returning Customers
+-- This query identifies customers who have placed more than one order. 
+-- It helps assess customer loyalty and repeat engagement with the store
 
 SELECT 
     c.customer_id,
@@ -211,6 +224,8 @@ GROUP BY c.customer_id
 HAVING total_orders > 1;
 
 -- Step 9: Average Order Value (AOV)
+-- This step calculates how much revenue is generated per order on average. 
+-- It is a key business metric for understanding customer purchasing behavior.
 
 SELECT 
     ROUND(SUM(quantity * b.price) * 1.0 / COUNT(DISTINCT o.order_id), 2) AS avg_order_value
@@ -218,6 +233,8 @@ FROM Orders o
 JOIN Books b ON o.book_id = b.book_id;
 
 -- Step 10: Books Frequently Bought Together
+-- Identify books that are often purchased by the same customer, enabling better recommendations and bundle promotions.
+-- Use this to suggest complementary books during checkout.
 
 SELECT 
     o1.book_id AS book_1,
@@ -232,6 +249,7 @@ ORDER BY times_bought_together DESC
 LIMIT 10;
  
 -- Step 11: Churned Customers
+-- This step detects customers who haven’t made a purchase in the last 365 days, identifying users who may need re-engagement campaigns.
 
 SELECT 
     c.customer_id,
